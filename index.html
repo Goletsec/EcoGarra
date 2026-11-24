@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoGarra | Juego de reciclaje</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+
+    <header class="topbar">
+        <div class="brand">
+            <span class="brand-icon">♻️</span>
+            <div>
+                <h1>EcoGarra</h1>
+                <p>¡Atrapa, separa y recicla!</p>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <span>PUNTOS</span>
+                <strong id="score">0</strong>
+            </div>
+            <div class="stat">
+                <span>RACHA</span>
+                <strong id="streak">0</strong>
+            </div>
+            <div class="stat">
+                <span>VIDAS</span>
+                <strong id="lives">❤️❤️❤️</strong>
+            </div>
+        </div>
+    </header>
+
+    <main class="game-container">
+
+        <section class="level-panel">
+            <div class="level-info">
+                <span class="eyebrow">TU MISIÓN ECOLÓGICA</span>
+                <h2>Nivel <span id="level">1</span></h2>
+            </div>
+
+            <div class="round-info">
+                <span id="round-label">RONDA 1/5</span>
+                <span>Ronda <strong id="round">1</strong> de 5</span>
+                <div class="progress-track">
+                    <div id="progress" class="progress-fill"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="main-grid">
+
+            <article class="card waste-card">
+                <div class="card-heading">
+                    <span class="section-number">01</span>
+                    <div>
+                        <h2 id="prompt-title">¿Dónde va este residuo?</h2>
+                        <p id="instruction">
+                            Elige el contenedor correcto.
+                        </p>
+                    </div>
+                </div>
+
+                <span id="challenge-tag" class="challenge-tag hidden">
+                    RETO AVANZADO
+                </span>
+
+                <div class="waste-display">
+                    <div id="waste-art" class="waste-art"></div>
+                </div>
+
+                <h3 id="waste-name">Residuo</h3>
+                <p id="waste-description" class="description">
+                    Observa el objeto antes de clasificarlo.
+                </p>
+
+                <div id="message" class="message">
+                    Selecciona una categoría.
+                </div>
+
+                <div class="hint-box">
+                    <span>💡</span>
+                    <p id="game-hint">
+                        Fíjate en el material antes de elegir.
+                    </p>
+                </div>
+            </article>
+
+            <article class="card sorting-card">
+                <div class="card-heading">
+                    <span class="section-number">02</span>
+                    <div>
+                        <h2>Zona de reciclaje</h2>
+                        <p>Selecciona el contenedor adecuado.</p>
+                    </div>
+                </div>
+
+                <div id="separation-area" class="separation-area hidden">
+                    <h3>✂️ Separa los componentes</h3>
+                    <p class="small-text">
+                        Arrastra cada pieza o tócala y después elige su destino.
+                    </p>
+
+                    <div id="separation-items" class="separation-items"></div>
+
+                    <div id="liquid-zone" class="liquid-zone hidden"
+                         data-category="liquido">
+                        <span class="liquid-icon">💧</span>
+                        <strong>Líquido restante</strong>
+                        <small>Depositar por separado</small>
+                    </div>
+                </div>
+
+                <div id="bins" class="bins">
+
+                    <button class="bin bin-organic"
+                            type="button"
+                            data-category="organico">
+                        <span class="bin-icon">🍃</span>
+                        <strong>Orgánico</strong>
+                        <small>Restos de comida y plantas</small>
+                    </button>
+
+                    <button class="bin bin-inorganic"
+                            type="button"
+                            data-category="inorganico">
+                        <span class="bin-icon">📦</span>
+                        <strong>Inorgánico</strong>
+                        <small>Papel, cartón, vidrio y otros</small>
+                    </button>
+
+                    <button class="bin bin-pet"
+                            type="button"
+                            data-category="pet">
+                        <span class="bin-icon">🧴</span>
+                        <strong>Plástico PET</strong>
+                        <small>Botellas PET vacías</small>
+                    </button>
+
+                </div>
+
+                <p class="sorting-note">
+                    ♻️ Recuerda: separar correctamente ayuda a aprovechar
+                    los materiales y reducir los residuos.
+                </p>
+            </article>
+
+        </section>
+
+        <footer class="footer">
+            <span>🌎 EcoGarra</span>
+            <span>Pequeñas acciones, grandes cambios.</span>
+        </footer>
+
+    </main>
+
+    <section id="game-over" class="game-over hidden">
+        <div class="result-card">
+            <div id="final-stamp" class="final-stamp">🌱</div>
+            <h2 id="end-title">¡Reto terminado!</h2>
+            <p id="end-message"></p>
+
+            <div class="final-score">
+                <span>Puntuación final</span>
+                <strong id="final-score">0</strong>
+            </div>
+
+            <p id="learning-message" class="learning-message"></p>
+
+            <button id="restart-button" class="restart-button" type="button">
+                ↻ Jugar de nuevo
+            </button>
+        </div>
+    </section>
+
+</body>
+</html>
