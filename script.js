@@ -378,6 +378,9 @@ const state = {
     previousName: "",
     activeParts: [],
     selectedPart: null,
+    clawX: 50,
+    clawY: 18,
+    carrying: null,
     lastLesson: "Observa los materiales y separa los residuos antes de clasificarlos."
 };
 
@@ -392,6 +395,10 @@ const binsEl = $("bins");
 const separationArea = $("separation-area");
 const separationItems = $("separation-items");
 const liquidZone = $("liquid-zone");
+const clawStage = $("claw-stage");
+const clawEl = $("claw");
+const pickupWaste = $("pickup-waste");
+const carriedWaste = $("carried-waste");
 
 
 // ========================================
@@ -457,6 +464,9 @@ function loadWaste() {
     state.previousName = state.current.name;
     state.activeParts = [];
     state.selectedPart = null;
+    state.clawX = 50;
+    state.clawY = 18;
+    state.carrying = null;
 
     $("waste-art").innerHTML = drawings[state.current.art];
     $("waste-name").textContent = state.current.name;
@@ -511,6 +521,8 @@ function loadWaste() {
         bin.classList.remove("drag-over");
     });
 
+    updateClaw();
+    updatePickupDisplay();
     updateScreen();
 }
 
@@ -525,47 +537,18 @@ function renderSeparationParts() {
     state.activeParts.forEach(part => {
         if (part.done) return;
 
-        const card = document.createElement("button");
-        card.type = "button";
+        const card = document.createElement("div");
         card.className = "separation-item";
-        card.draggable = true;
-        card.dataset.partId = part.id;
-
         card.innerHTML = `
             ${drawings[part.art]}
             <strong>${part.name}</strong>
-            <small>Arrastra o toca para elegir</small>
+            <small>La garra la recogerá</small>
         `;
-
-        card.addEventListener("dragstart", event => {
-            state.selectedPart = part.id;
-            event.dataTransfer.setData("text/plain", String(part.id));
-            event.dataTransfer.effectAllowed = "move";
-            card.classList.add("selected");
-        });
-
-        card.addEventListener("dragend", () => {
-            card.classList.remove("selected");
-        });
-
-        // Para celulares: toca primero la pieza.
-        card.addEventListener("click", () => {
-            state.selectedPart = part.id;
-
-            separationItems.querySelectorAll(".separation-item")
-                .forEach(item => item.classList.remove("selected"));
-
-            card.classList.add("selected");
-
-            setMessage(
-                `Elegiste "${part.name}". Ahora toca el contenedor correcto.`
-            );
-        });
-
         separationItems.appendChild(card);
     });
-}
 
+    updatePickupDisplay();
+}
 
 // ========================================
 // COLOCAR UNA PIEZA EN SU DESTINO
@@ -630,81 +613,179 @@ function placePart(id, destination) {
 // ========================================
 
 function setupDropTargets() {
-    binsEl.querySelectorAll(".bin").forEach(bin => {
+    // Los contenedores ahora reciben residuos únicamente mediante la garra.
+}
 
-        bin.addEventListener("dragover", event => {
-            if (!state.current?.parts) return;
 
-            event.preventDefault();
-            bin.classList.add("drag-over");
-        });
+// ========================================
+// CONTROL DE LA GARRA CON EL TECLADO
+// ========================================
 
-        bin.addEventListener("dragleave", () => {
-            bin.classList.remove("drag-over");
-        });
+function updateClaw() {
+    clawEl.style.setProperty("--claw-x", `${state.clawX}%`);
+    clawEl.style.setProperty("--claw-y", `${state.clawY}%`);
+    clawEl.classList.toggle("is-carrying", Boolean(state.carrying));
+    $("claw-status").textContent = state.carrying
+        ? "Transportando residuo"
+        : state.clawY > 35 ? "Garra abajo" : "Garra lista";
+}
 
-        bin.addEventListener("drop", event => {
-            if (!state.current?.parts) return;
+function updatePickupDisplay() {
+    if (!state.current) return;
 
-            event.preventDefault();
-            bin.classList.remove("drag-over");
+    let art = drawings[state.current.art];
+    let label = state.current.name;
 
-            const id = Number(
-                event.dataTransfer.getData("text/plain")
-            );
-
-            placePart(id, bin.dataset.category);
-        });
-
-        // En celular, tocar el contenedor coloca la pieza seleccionada.
-        bin.addEventListener("click", () => {
-            if (!state.current?.parts) return;
-
-            if (state.selectedPart === null) {
-                setMessage("Primero selecciona una pieza para separarla.");
-                return;
-            }
-
-            placePart(state.selectedPart, bin.dataset.category);
-        });
-    });
-
-    liquidZone.addEventListener("dragover", event => {
-        if (!state.current?.parts) return;
-
-        event.preventDefault();
-        liquidZone.classList.add("drag-over");
-    });
-
-    liquidZone.addEventListener("dragleave", () => {
-        liquidZone.classList.remove("drag-over");
-    });
-
-    liquidZone.addEventListener("drop", event => {
-        if (!state.current?.parts) return;
-
-        event.preventDefault();
-        liquidZone.classList.remove("drag-over");
-
-        const id = Number(
-            event.dataTransfer.getData("text/plain")
-        );
-
-        placePart(id, "liquido");
-    });
-
-    liquidZone.addEventListener("click", () => {
-        if (!state.current?.parts) return;
-
-        if (state.selectedPart === null) {
-            setMessage("Primero selecciona el líquido.");
-            return;
+    if (state.current.parts) {
+        const nextPart = state.activeParts.find(part => !part.done);
+        if (nextPart) {
+            art = drawings[nextPart.art];
+            label = nextPart.name;
         }
+    }
 
-        placePart(state.selectedPart, "liquido");
+    pickupWaste.innerHTML = art || "";
+    pickupWaste.dataset.label = label;
+    pickupWaste.classList.toggle("is-hidden", Boolean(state.carrying));
+}
+
+function getDropTargetAt(x) {
+    const targets = [...binsEl.querySelectorAll(".bin, .liquid-zone")];
+    const stageRect = clawStage.getBoundingClientRect();
+
+    return targets.find(target => {
+        if (target.classList.contains("hidden")) return false;
+        const rect = target.getBoundingClientRect();
+        const center = ((rect.left + rect.right) / 2 - stageRect.left) / stageRect.width * 100;
+        const halfWidth = rect.width / stageRect.width * 50;
+        return Math.abs(x - center) <= halfWidth;
     });
 }
 
+function clawAction() {
+    if (!state.playing) return;
+
+    if (!state.carrying) {
+        if (state.clawY < 28 || Math.abs(state.clawX - 50) > 20) {
+            setMessage("Acércate al residuo: centra la garra y bájala con la flecha ↓.");
+            return;
+        }
+
+        if (state.current.parts) {
+            const part = state.activeParts.find(item => !item.done);
+            if (!part) return;
+            state.carrying = { type: "part", id: part.id, art: part.art, name: part.name };
+        } else {
+            state.carrying = { type: "waste", art: state.current.art, name: state.current.name };
+        }
+
+        carriedWaste.innerHTML = drawings[state.carrying.art];
+        pickupWaste.classList.add("is-hidden");
+        setMessage(`¡Recogiste ${state.carrying.name}! Llévalo al contenedor correcto.`);
+        updateClaw();
+        return;
+    }
+
+    if (state.clawY < 45) {
+        setMessage("Baja la garra hasta el contenedor con la flecha ↓ y presiona espacio para soltar.");
+        return;
+    }
+
+    const target = getDropTargetAt(state.clawX);
+    if (!target) {
+        setMessage("Coloca la garra justo encima de uno de los contenedores antes de soltar.");
+        return;
+    }
+
+    const category = target.dataset.category;
+    const carried = state.carrying;
+    state.carrying = null;
+    carriedWaste.innerHTML = "";
+
+    if (carried.type === "part") {
+        const part = state.activeParts.find(item => item.id === carried.id);
+        const correct = part && part.category === category;
+        placePart(carried.id, category);
+        if (!correct) updatePickupDisplay();
+    } else {
+        const correct = state.current.category === category;
+        answer(category);
+        if (!correct) updatePickupDisplay();
+    }
+
+    updateClaw();
+}
+
+document.addEventListener("keydown", event => {
+    const keys = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", " ", "Spacebar"];
+    if (!keys.includes(event.key) || !state.playing) return;
+    if (event.target.closest("button, input, textarea, select")) return;
+    event.preventDefault();
+
+    const step = event.shiftKey ? 10 : 5;
+    if (event.key === "ArrowLeft") state.clawX = Math.max(5, state.clawX - step);
+    if (event.key === "ArrowRight") state.clawX = Math.min(95, state.clawX + step);
+    if (event.key === "ArrowUp") state.clawY = Math.max(12, state.clawY - step);
+    if (event.key === "ArrowDown") state.clawY = Math.min(68, state.clawY + step);
+    if (event.key === " " || event.key === "Spacebar") clawAction();
+
+    updateClaw();
+});
+
+clawStage.addEventListener("click", () => clawStage.focus());
+
+// ========================================
+// CONTROLES TÁCTILES PARA CELULARES Y TABLETAS
+// ========================================
+
+let touchMoveTimer = null;
+let touchMoveDirection = null;
+
+function moveClaw(direction, step = 5) {
+    if (!state.playing) return;
+
+    if (direction === "left") state.clawX = Math.max(5, state.clawX - step);
+    if (direction === "right") state.clawX = Math.min(95, state.clawX + step);
+    if (direction === "up") state.clawY = Math.max(12, state.clawY - step);
+    if (direction === "down") state.clawY = Math.min(68, state.clawY + step);
+
+    updateClaw();
+}
+
+function stopTouchMove() {
+    if (touchMoveTimer) clearInterval(touchMoveTimer);
+    touchMoveTimer = null;
+    touchMoveDirection = null;
+}
+
+document.querySelectorAll("[data-claw-control]").forEach(control => {
+    const direction = control.dataset.clawControl;
+
+    control.addEventListener("pointerdown", event => {
+        event.preventDefault();
+        control.setPointerCapture?.(event.pointerId);
+
+        if (direction === "action") {
+            clawAction();
+            return;
+        }
+
+        stopTouchMove();
+        touchMoveDirection = direction;
+        moveClaw(direction, 5);
+        touchMoveTimer = setInterval(() => {
+            if (touchMoveDirection) moveClaw(touchMoveDirection, 3);
+        }, 140);
+    });
+
+    ["pointerup", "pointercancel", "lostpointercapture"].forEach(eventName => {
+        control.addEventListener(eventName, stopTouchMove);
+    });
+});
+
+document.addEventListener("visibilitychange", () => {
+    if (document.hidden) stopTouchMove();
+});
 
 // ========================================
 // CLASIFICAR RESIDUOS NORMALES
@@ -829,6 +910,9 @@ function restartGame() {
         previousName: "",
         activeParts: [],
         selectedPart: null,
+        clawX: 50,
+        clawY: 18,
+        carrying: null,
         lastLesson: "Observa los materiales y separa los residuos antes de clasificarlos."
     });
 
@@ -841,12 +925,6 @@ function restartGame() {
 // ========================================
 // INICIAR EVENTOS
 // ========================================
-
-binsEl.querySelectorAll(".bin").forEach(bin => {
-    bin.addEventListener("click", () => {
-        answer(bin.dataset.category);
-    });
-});
 
 setupDropTargets();
 

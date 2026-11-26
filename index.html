@@ -94,27 +94,35 @@
                     <span class="section-number">02</span>
                     <div>
                         <h2>Zona de reciclaje</h2>
-                        <p>Selecciona el contenedor adecuado.</p>
+                        <p>Mueve la garra, recoge y deposita cada residuo.</p>
                     </div>
                 </div>
 
                 <div id="separation-area" class="separation-area hidden">
                     <h3>✂️ Separa los componentes</h3>
-                    <p class="small-text">
-                        Arrastra cada pieza o tócala y después elige su destino.
-                    </p>
-
+                    <p class="small-text">La garra recogerá cada componente por separado.</p>
                     <div id="separation-items" class="separation-items"></div>
-
-                    <div id="liquid-zone" class="liquid-zone hidden"
-                         data-category="liquido">
-                        <span class="liquid-icon">💧</span>
-                        <strong>Líquido restante</strong>
-                        <small>Depositar por separado</small>
-                    </div>
                 </div>
 
-                <div id="bins" class="bins">
+                <div class="claw-instructions">
+                    <span>⌨️ Controles</span>
+                    <span>← → mover</span>
+                    <span>↑ ↓ subir / bajar</span>
+                    <span>ESPACIO agarrar / soltar</span>
+                </div>
+
+                <div id="claw-stage" class="claw-stage" tabindex="0" aria-label="Área de juego. Usa las flechas para mover la garra y espacio para agarrar o soltar.">
+                    <div class="stage-top"><span>ÁREA DE LA GARRA</span><span id="claw-status">Lista para recoger</span></div>
+                    <div class="claw-rail"></div>
+                    <div id="claw" class="claw" style="--claw-x:50%; --claw-y:18%;">
+                        <div class="claw-cable"></div>
+                        <div class="claw-head"><i></i><i></i><i></i></div>
+                        <div id="carried-waste" class="carried-waste"></div>
+                    </div>
+                    <div id="pickup-waste" class="pickup-waste"></div>
+                    <div class="pickup-label">RESIDUO</div>
+                    <div class="stage-floor"></div>
+                    <div id="bins" class="bins">
 
                     <button class="bin bin-organic"
                             type="button"
@@ -140,6 +148,23 @@
                         <small>Botellas PET vacías</small>
                     </button>
 
+                    <div id="liquid-zone" class="liquid-zone hidden" data-category="liquido">
+                        <span class="liquid-icon">💧</span>
+                        <strong>Líquido</strong>
+                        <small>Vaciar aquí</small>
+                    </div>
+
+                    </div>
+                </div>
+
+                <div class="touch-controls" aria-label="Controles táctiles de la garra">
+                    <div class="touch-pad">
+                        <button type="button" class="touch-control touch-up" data-claw-control="up" aria-label="Subir garra">▲</button>
+                        <button type="button" class="touch-control touch-left" data-claw-control="left" aria-label="Mover garra a la izquierda">◀</button>
+                        <button type="button" class="touch-control touch-down" data-claw-control="down" aria-label="Bajar garra">▼</button>
+                        <button type="button" class="touch-control touch-right" data-claw-control="right" aria-label="Mover garra a la derecha">▶</button>
+                    </div>
+                    <button type="button" class="touch-action" data-claw-control="action">AGARRAR / SOLTAR</button>
                 </div>
 
                 <p class="sorting-note">

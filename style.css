@@ -757,3 +757,576 @@ button:focus-visible {
         padding: 25px 20px;
     }
 }
+/* =====================================
+   MÁQUINA DE GARRA VIRTUAL
+===================================== */
+
+.claw-instructions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 7px;
+    margin: 0 0 12px;
+    color: #587064;
+    font-size: 10px;
+}
+
+.claw-instructions span {
+    padding: 6px 8px;
+    border: 1px solid #dce9dc;
+    border-radius: 7px;
+    background: #f5faf3;
+}
+
+.claw-instructions span:first-child {
+    color: var(--green-dark);
+    font-weight: 800;
+}
+
+.claw-stage {
+    position: relative;
+    height: 390px;
+    overflow: hidden;
+    border: 2px solid #c9d9ca;
+    border-radius: 16px;
+    outline: none;
+    background: linear-gradient(#eaf5f8 0%, #f8fbf2 72%, #dcebd9 72%);
+    box-shadow: inset 0 0 25px rgba(46, 91, 59, .08);
+}
+
+.claw-stage:focus-visible {
+    outline: 3px solid #7fbd66;
+    outline-offset: 3px;
+}
+
+.stage-top {
+    position: absolute;
+    z-index: 5;
+    top: 9px;
+    right: 12px;
+    left: 12px;
+    display: flex;
+    justify-content: space-between;
+    color: #688071;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .8px;
+}
+
+.claw-rail {
+    position: absolute;
+    top: 34px;
+    left: 5%;
+    width: 90%;
+    height: 9px;
+    border: 2px solid #60766a;
+    border-radius: 8px;
+    background: #a8b9aa;
+    box-shadow: 0 3px 0 rgba(29, 62, 43, .12);
+}
+
+.claw {
+    position: absolute;
+    z-index: 6;
+    top: var(--claw-y);
+    left: var(--claw-x);
+    width: 54px;
+    height: 100px;
+    transform: translate(-50%, 0);
+    transition: left .13s ease, top .13s ease;
+    pointer-events: none;
+}
+
+.claw-cable {
+    width: 4px;
+    height: 38px;
+    margin: 0 auto;
+    border-radius: 5px;
+    background: #65756c;
+    box-shadow: 1px 0 #fff;
+}
+
+.claw-head {
+    position: relative;
+    width: 34px;
+    height: 25px;
+    margin: -1px auto 0;
+    border: 4px solid #52665a;
+    border-top: 6px solid #40564a;
+    border-radius: 7px 7px 11px 11px;
+    background: linear-gradient(135deg, #c4d2c4, #829888);
+    box-shadow: 0 3px 5px #52665a44;
+}
+
+.claw-head i {
+    position: absolute;
+    top: 13px;
+    width: 7px;
+    height: 24px;
+    border: 4px solid #52665a;
+    border-top: 0;
+    background: #a9b9aa;
+}
+
+.claw-head i:first-child {
+    left: -8px;
+    transform: rotate(17deg);
+    border-radius: 0 0 0 8px;
+}
+
+.claw-head i:nth-child(2) {
+    right: -8px;
+    transform: rotate(-17deg);
+    border-radius: 0 0 8px 0;
+}
+
+.claw-head i:nth-child(3) { display: none; }
+
+.claw.is-carrying .claw-head i:first-child { transform: rotate(-5deg); }
+.claw.is-carrying .claw-head i:nth-child(2) { transform: rotate(5deg); }
+
+.carried-waste {
+    position: absolute;
+    top: 61px;
+    left: 50%;
+    width: 48px;
+    height: 48px;
+    transform: translateX(-50%);
+}
+
+.carried-waste svg,
+.pickup-waste svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+.pickup-waste {
+    position: absolute;
+    top: 57%;
+    left: 50%;
+    width: 72px;
+    height: 72px;
+    transform: translate(-50%, -50%);
+    padding: 5px;
+    border: 2px dashed #b3d3a7;
+    border-radius: 15px;
+    background: #ffffffd9;
+    transition: opacity .15s ease;
+}
+
+.pickup-waste.is-hidden { opacity: 0; }
+
+.pickup-label {
+    position: absolute;
+    top: calc(57% + 39px);
+    left: 50%;
+    transform: translateX(-50%);
+    color: #78907d;
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.stage-floor {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 27%;
+    border-top: 3px solid #b6cdb2;
+    background: repeating-linear-gradient(90deg, #e6f0e1 0 28px, #dcebd7 28px 30px);
+}
+
+.bins {
+    position: absolute;
+    z-index: 3;
+    right: 7px;
+    bottom: 8px;
+    left: 7px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: end;
+    gap: 6px;
+}
+
+.bin {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+    min-height: 91px;
+    padding: 7px 4px;
+    border-width: 2px;
+    border-radius: 10px 10px 7px 7px;
+    text-align: center;
+    cursor: default;
+    box-shadow: inset 0 7px 0 rgba(255,255,255,.45), 0 3px 0 rgba(47,79,52,.12);
+}
+
+.bin:hover { transform: none; box-shadow: inset 0 7px 0 rgba(255,255,255,.45), 0 3px 0 rgba(47,79,52,.12); }
+.bin-icon { width: 27px; height: 27px; border-radius: 8px; font-size: 16px; }
+.bin strong { margin: 0; font-size: 9px; }
+.bin small { font-size: 7px; line-height: 1.2; }
+
+.liquid-zone {
+    justify-content: center;
+    min-width: 0;
+    min-height: 91px;
+    margin: 0;
+    padding: 5px 3px;
+    gap: 4px;
+    border-width: 2px;
+    border-radius: 10px 10px 7px 7px;
+    cursor: default;
+    font-size: 9px;
+}
+
+.liquid-icon { font-size: 20px; }
+.liquid-zone strong { font-size: 9px; }
+.liquid-zone small { font-size: 7px; }
+
+@media (max-width: 480px) {
+    .claw-stage { height: 350px; }
+    .bins { right: 4px; left: 4px; gap: 4px; }
+    .bin { min-height: 82px; padding: 5px 2px; }
+    .bin strong, .liquid-zone strong { font-size: 8px; }
+    .bin small, .liquid-zone small { font-size: 6px; }
+    .claw-instructions { gap: 5px; }
+    .claw-instructions span { font-size: 9px; padding: 5px 6px; }
+}
+
+/* =====================================
+   ENFOQUE PRINCIPAL: ZONA DE LA GARRA
+===================================== */
+@media (min-width: 801px) {
+    .game-container {
+        width: min(1400px, 96%);
+        margin: 18px auto;
+    }
+
+    .main-grid {
+        grid-template-columns: minmax(220px, 0.72fr) minmax(0, 2fr);
+        gap: 18px;
+        align-items: stretch;
+    }
+
+    .waste-card {
+        padding: 18px;
+        align-self: start;
+    }
+
+    .waste-card .card-heading {
+        gap: 9px;
+        margin-bottom: 12px;
+    }
+
+    .waste-card .section-number {
+        width: 30px;
+        height: 30px;
+        border-radius: 9px;
+        font-size: 10px;
+    }
+
+    .waste-card .card-heading h2 {
+        font-size: 16px;
+        margin-bottom: 5px;
+    }
+
+    .waste-card .card-heading p {
+        font-size: 11px;
+    }
+
+    .waste-card .waste-display {
+        min-height: 155px;
+        margin: 8px 0 12px;
+        border-radius: 14px;
+    }
+
+    .waste-card .waste-art {
+        height: 150px;
+        padding: 12px;
+    }
+
+    .waste-card .waste-art svg {
+        width: min(145px, 100%);
+        height: 135px;
+    }
+
+    .waste-card > h3 {
+        font-size: 17px;
+        margin-bottom: 6px;
+    }
+
+    .waste-card .description,
+    .waste-card .message,
+    .waste-card .hint-box {
+        font-size: 11px;
+    }
+
+    .sorting-card {
+        padding: 24px;
+        min-width: 0;
+    }
+
+    .sorting-card .card-heading {
+        margin-bottom: 14px;
+    }
+
+    .sorting-card .card-heading h2 {
+        font-size: 20px;
+    }
+
+    .claw-instructions {
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+
+    .claw-instructions span {
+        padding: 7px 10px;
+        font-size: 11px;
+    }
+
+    .claw-stage {
+        height: clamp(470px, 60vh, 650px);
+        min-height: 470px;
+        border-radius: 18px;
+    }
+
+    .claw-rail {
+        top: 42px;
+        height: 11px;
+    }
+
+    .claw {
+        transform: translate(-50%, 0) scale(1.12);
+        transform-origin: top center;
+    }
+
+    .pickup-waste {
+        width: 90px;
+        height: 90px;
+        padding: 7px;
+    }
+
+    .pickup-label {
+        top: calc(57% + 48px);
+        font-size: 10px;
+    }
+
+    .stage-floor {
+        height: 25%;
+    }
+
+    .bins {
+        right: 12px;
+        bottom: 12px;
+        left: 12px;
+        gap: 12px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .bins:has(.liquid-zone:not(.hidden)) {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .bin,
+    .liquid-zone {
+        min-height: 112px;
+        padding: 10px 8px;
+        gap: 7px;
+        border-radius: 12px 12px 8px 8px;
+    }
+
+    .bin-icon {
+        width: 34px;
+        height: 34px;
+        font-size: 20px;
+    }
+
+    .bin strong,
+    .liquid-zone strong {
+        font-size: 12px;
+    }
+
+    .bin small,
+    .liquid-zone small {
+        font-size: 9px;
+        line-height: 1.3;
+    }
+
+    .sorting-note {
+        margin-top: 14px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 800px) {
+    /* En pantallas pequeñas, primero se muestra la zona donde se juega. */
+    .sorting-card { order: 1; }
+    .waste-card { order: 2; }
+    .main-grid { display: flex; flex-direction: column; }
+    .claw-stage { height: 440px; }
+    .bins { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .bins:has(.liquid-zone:not(.hidden)) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+
+/* =====================================
+   AJUSTE RESPONSIVE DE LA MÁQUINA
+   La garra, el residuo y los contenedores
+   permanecen visibles en la misma escena.
+===================================== */
+
+.sorting-card { min-width: 0; }
+.claw-stage {
+    height: clamp(420px, 58vh, 620px);
+    min-height: 420px;
+    isolation: isolate;
+}
+.pickup-waste { top: 49%; }
+.pickup-label { top: calc(49% + 47px); }
+.stage-floor { height: 30%; }
+.bins {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(5px, 1vw, 12px);
+}
+.bins:has(.liquid-zone:not(.hidden)) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.bin, .liquid-zone { min-width: 0; }
+.touch-controls { display: none; }
+
+@media (max-width: 800px) {
+    .game-container { width: min(96%, 760px); }
+    .main-grid { display: flex; flex-direction: column; gap: 12px; }
+    .sorting-card { order: 1; padding: 15px; }
+    .waste-card { order: 2; padding: 15px; }
+    .sorting-card .card-heading { margin-bottom: 10px; }
+    .sorting-card .card-heading h2 { font-size: 18px; }
+    .sorting-card .card-heading p { font-size: 12px; }
+    .claw-instructions { margin-bottom: 8px; gap: 5px; }
+    .claw-instructions span { font-size: 10px; padding: 5px 7px; }
+    .claw-stage { height: clamp(390px, 55svh, 520px); min-height: 390px; }
+    .claw-rail { top: 31px; }
+    .claw { transform: translate(-50%, 0) scale(.95); }
+    .pickup-waste { top: 48%; width: 76px; height: 76px; }
+    .pickup-label { top: calc(48% + 41px); }
+    .stage-floor { height: 31%; }
+    .bins { right: 6px; bottom: 7px; left: 6px; gap: 5px; }
+    .bin, .liquid-zone { min-height: 86px; padding: 6px 3px; gap: 4px; }
+    .bin-icon { width: 28px; height: 28px; font-size: 17px; }
+    .bin strong, .liquid-zone strong { font-size: 10px; line-height: 1.15; }
+    .bin small, .liquid-zone small { font-size: 8px; line-height: 1.15; }
+    .touch-controls {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
+        padding: 12px 4px 3px;
+        touch-action: none;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+    .touch-pad {
+        display: grid;
+        grid-template-columns: repeat(3, 44px);
+        grid-template-rows: repeat(2, 42px);
+        gap: 5px;
+    }
+    .touch-up { grid-column: 2; grid-row: 1; }
+    .touch-left { grid-column: 1; grid-row: 2; }
+    .touch-down { grid-column: 2; grid-row: 2; }
+    .touch-right { grid-column: 3; grid-row: 2; }
+    .touch-control, .touch-action {
+        display: grid;
+        place-items: center;
+        border: 1px solid #b9d5bc;
+        border-radius: 12px;
+        background: #edf7ed;
+        color: #174d38;
+        font-weight: 800;
+        box-shadow: 0 3px 0 #c8ddc9;
+        touch-action: none;
+        -webkit-tap-highlight-color: transparent;
+    }
+    .touch-control { width: 44px; height: 42px; font-size: 18px; }
+    .touch-control:active, .touch-action:active {
+        transform: translateY(2px);
+        box-shadow: 0 1px 0 #c8ddc9;
+        background: #dcefdc;
+    }
+    .touch-action { min-width: 126px; min-height: 56px; padding: 10px 13px; font-size: 11px; }
+    .sorting-note { font-size: 11px; line-height: 1.4; }
+    .waste-card .waste-display { min-height: 130px; }
+    .waste-card .waste-art { height: 130px; }
+}
+
+@media (max-width: 420px) {
+    .topbar { padding: 12px 4%; gap: 12px; }
+    .brand-icon { width: 42px; height: 42px; font-size: 24px; }
+    .brand h1 { font-size: 22px; }
+    .stats { gap: 5px; }
+    .stat { padding: 7px 3px; border-radius: 9px; }
+    .stat span { font-size: 8px; }
+    .stat strong { font-size: 14px; }
+    .game-container { width: 94%; margin-top: 10px; }
+    .level-panel { padding: 12px; }
+    .round-info { width: 48%; }
+    .card { border-radius: 15px; }
+    .sorting-card { padding: 11px; }
+    .claw-stage { height: 380px; min-height: 380px; }
+    .claw { transform: translate(-50%, 0) scale(.82); }
+    .pickup-waste { width: 64px; height: 64px; top: 47%; }
+    .pickup-label { top: calc(47% + 35px); font-size: 7px; }
+    .bin, .liquid-zone { min-height: 77px; padding: 5px 1px; }
+    .bin strong, .liquid-zone strong { font-size: 8px; }
+    .bin small, .liquid-zone small { font-size: 6.5px; }
+    .bin-icon { width: 23px; height: 23px; font-size: 15px; }
+    .touch-controls { gap: 10px; }
+    .touch-pad { grid-template-columns: repeat(3, 40px); grid-template-rows: repeat(2, 39px); gap: 4px; }
+    .touch-control { width: 40px; height: 39px; }
+    .touch-action { min-width: 112px; min-height: 52px; font-size: 10px; }
+}
+
+@media (hover: none) and (pointer: coarse) {
+    .touch-controls { display: flex; }
+    .claw-stage { outline: none; }
+}
+
+
+/* =====================================
+   AJUSTE FINAL: ESCENA MÁS COMPACTA Y
+   ALCANCE DE GARRA MÁS NATURAL
+===================================== */
+@media (min-width: 801px) {
+    .sorting-card { padding: 18px; }
+    .sorting-card .card-heading { margin-bottom: 9px; }
+    .claw-instructions { margin-bottom: 8px; }
+    .claw-stage { height: clamp(360px, 46vh, 470px); min-height: 360px; }
+    .claw-rail { top: 29px; }
+    .pickup-waste { top: 48%; width: 72px; height: 72px; }
+    .pickup-label { top: calc(48% + 39px); }
+    .stage-floor { height: 29%; }
+    .bin, .liquid-zone { min-height: 94px; }
+}
+
+@media (max-width: 800px) {
+    .sorting-card { padding: 12px; }
+    .claw-stage { height: clamp(330px, 48svh, 430px); min-height: 330px; }
+    .claw-rail { top: 27px; }
+    .pickup-waste { top: 47%; width: 64px; height: 64px; }
+    .pickup-label { top: calc(47% + 35px); }
+    .stage-floor { height: 30%; }
+    .bin, .liquid-zone { min-height: 74px; }
+}
+
+@media (max-width: 420px) {
+    .claw-stage { height: 330px; min-height: 330px; }
+    .claw { transform: translate(-50%, 0) scale(.78); }
+    .pickup-waste { top: 46%; width: 58px; height: 58px; }
+    .pickup-label { top: calc(46% + 32px); }
+    .bin, .liquid-zone { min-height: 68px; }
+}
